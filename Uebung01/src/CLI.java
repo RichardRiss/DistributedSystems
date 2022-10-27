@@ -19,7 +19,7 @@ public class CLI {
         System.out.println("-trnum <int>    number of parallel threads to create");
 
         //parse available command-value combinations
-        Map<String, String> dict = new HashMap<String, String>();
+        Map<String, String> dict = new HashMap<>();
         for (int i = 0; i < args.length - 1; i += 2) {
             dict.put(args[i], args[i + 1]);
         }
@@ -39,39 +39,28 @@ public class CLI {
             Thread tr = new Thread(String.valueOf(j)) {
                 @Override
                 public void run() {
-                    if (Integer.parseInt(this.getName()) % 2 != 0) {
-                        for (int i = 0; i <10; i++) {
-                            counter.increment();
-                            System.out.println("Thread " + this.getName() + " incremented Counter. New value is: " + counter.value());
-                        }
+                    for (int i = 0; i <1000; i++) {
+                        counter.increment();
+                        counter.decrement();
                     }
-                    else {
-                        for (int i = 0; i <10; i++) {
-                            counter.decrement();
-                            System.out.println("Thread " + this.getName() + " decremented Counter. New value is: " + counter.value());
-                        }
-                    }
+                    System.out.println("Thread " + this.getName() + ":  New value is: " + counter.value());
                 }
             };
+            tr.start();
             listthreads.add(tr);
         }
 
-        //Start all the created Threads
-        for (Thread tr: listthreads) {
-            tr.start();
-            System.out.println("Thread " + tr.getName() + " started.");
-        }
 
         // Wait for all Threads to finish
-        //for (Thread tr : listthreads) {
-            //try {
-                //tr.join();
-            //} catch (InterruptedException e) {
-                //System.out.println("Thread  got interrupted." + e.getClass());
-            //}
-        //}
+        for (Thread tr : listthreads) {
+            try {
+                tr.join();
+            } catch (InterruptedException e) {
+                System.out.println("Thread  got interrupted." + e.getClass());
+            }
+        }
         //Print final value in counter
-        //System.out.println("Final Value is: " + counter.value());
+        System.out.println("Final Value is: " + counter.value());
     }
 
 }

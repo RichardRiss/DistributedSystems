@@ -1,16 +1,16 @@
 class Counter {
     private int c = 0;
-    public void increment () {
+    public synchronized void increment () {
         int b = c ;
         b = b +1;
         c = b ;
     }
-    public void decrement () {
+    public synchronized  void decrement () {
         int d = c ;
         d =d -1;
         c = d ;
     }
-    public int value () {
+    public synchronized  int value () {
         return c ;
     }
 }
