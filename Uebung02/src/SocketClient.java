@@ -21,7 +21,7 @@ public class SocketClient {
             out.println("");
             out.flush();
             //Close Output on Socket to signalize the Server that we finished writing!
-            //socket.shutdownOutput();
+            socket.shutdownOutput();
 
             //Instantiate new input reader
             BufferedReader buff = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -81,17 +81,13 @@ public class SocketClient {
             buff.close();
 
         } catch (MalformedURLException e) {
-            System.out.println("URL Exception:");
-            e.printStackTrace();
+            System.out.println("URL Exception:" + e);
         } catch (IOException e) {
             System.out.println("IO Exception:");
             e.printStackTrace();
-            System.out.println(e.toString());
+            System.out.println(e);
 
         }
-
-
-
 
     }
 }
