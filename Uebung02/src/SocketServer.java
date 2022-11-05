@@ -38,7 +38,7 @@ public class SocketServer {
             if (request.length() > 0) System.out.println("Request was: " + request);
             //get response file
             String response = "";
-            Path path = Path.of("./Uebung01/src/index.html").toAbsolutePath();
+            Path path = Path.of("./Uebung02/src/index.html").toAbsolutePath();
             try {
                 response = Files.readString(path);
             } catch (Exception e) {

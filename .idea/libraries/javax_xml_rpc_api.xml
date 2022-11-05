@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="javax.xml.rpc.api" type="repository">
+    <properties maven-id="javax.xml.rpc:javax.xml.rpc-api:1.1.2" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/javax.xml.rpc-api-1.1.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
