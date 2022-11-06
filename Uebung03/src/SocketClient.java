@@ -1,8 +1,6 @@
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
-import javax.print.Doc;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -12,10 +10,12 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.*;
 
+
 public class SocketClient {
     Proxy proxy = null;
     String host = "127.0.0.1";
-    int proxy_port = 0;
+    String reponsestring = "";
+
 
     private Document build_request() throws ParserConfigurationException {
         // Build the request document
@@ -74,7 +74,7 @@ public class SocketClient {
         }
     }
 
-    public void getRecord(int key) {
+    public String getRecord(int key) {
         try {
             Document request = build_request();
 
@@ -105,13 +105,16 @@ public class SocketClient {
             send_request(request);
 
 
+
         } catch (ParserConfigurationException e) {
             System.out.println("Unable to Build Base Document.");
             e.printStackTrace();
         }
+
+        return this.reponsestring;
     }
 
-    public void getSize() {
+    public int getSize() {
         try {
             Document request = build_request();
 
@@ -130,21 +133,64 @@ public class SocketClient {
             send_request(request);
 
 
+
         } catch (ParserConfigurationException e) {
             System.out.println("Unable to Build Base Document.");
             e.printStackTrace();
         }
+
+        return Integer.parseInt(this.reponsestring);
     }
 
     public SocketClient(String host) {
         this.host = host;
     }
 
-
     public SocketClient(String host, String proxy_address, int proxy_port) {
         this.host = host;
         this.proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy_address, proxy_port));
     }
+
+    public void read_response(HttpURLConnection connection) {
+        //Read response
+        InputStream in = null;
+        try {
+            int status = connection.getResponseCode();
+            System.out.println("Server returned status " + status);
+            in = connection.getInputStream();
+
+            //Build Parser
+            DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = builderFactory.newDocumentBuilder();
+
+            //Parse response
+            Document response = builder.parse(in);
+
+            //close connection
+            in.close();
+            connection.disconnect();
+
+            //Print the response
+            System.out.println("Request returned: " + getStringFromDocument(response));
+            NodeList values = response.getElementsByTagName("value");
+            for (int i = 0; i < values.getLength(); i++) {
+                Node value = values.item(i).getFirstChild();
+                if (value != null) {
+                    if (value.getNodeName().equals("string")) {
+                        this.reponsestring = value.getTextContent();
+                    }
+                }
+            }
+
+
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            System.out.println(e.getClass());
+            e.printStackTrace();
+            connection.disconnect();
+        }
+    }
+
+
     private void send_request(Document request) {
 
         try {
@@ -174,15 +220,8 @@ public class SocketClient {
             out.flush();
             out.close();
 
-            //Read responde
-            BufferedReader buff = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-
-            //Print the response
-            String inputline;
-            while ((inputline = buff.readLine()) != null) {
-                System.out.println(inputline);
-            }
-            buff.close();
+            System.out.println("Request send: " + getStringFromDocument(request));
+            read_response(connection);
 
         } catch (MalformedURLException e) {
             System.out.println("URL Exception:" + e);
@@ -196,5 +235,25 @@ public class SocketClient {
             e.printStackTrace();
         }
 
+    }
+
+    //method to convert Document to String
+    public String getStringFromDocument(Document doc)
+    {
+        try
+        {
+            DOMSource domSource = new DOMSource(doc);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.transform(domSource, result);
+            return writer.toString();
+        }
+        catch(TransformerException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

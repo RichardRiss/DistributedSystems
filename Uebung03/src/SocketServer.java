@@ -6,11 +6,17 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import javax.xml.parsers.*;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 
 public class SocketServer {
@@ -27,7 +33,7 @@ public class SocketServer {
     public void addRecord(int key,String record) {
         //writes a database record to the database using a given key
         this.db.put(key, record);
-        System.out.println("Entry " + key + " : " + record + "added to database.");
+        System.out.println("Entry " + key + " : " + record + " added to database.");
     }
 
     public String getRecord(int key) {
@@ -38,6 +44,7 @@ public class SocketServer {
             result = this.db.get(key);
         } else {
             System.out.println("Requested record not in database.");
+            result = "key not in database";
         }
         return result;
     }
@@ -47,7 +54,7 @@ public class SocketServer {
         try {
             HttpServer server = HttpServer.create(new InetSocketAddress("localhost",port), 0);
             //Create the context for the server.
-            server.createContext("/index.html", new RequestHandler());
+            server.createContext("/", new RequestHandler());
             server.setExecutor(Executors.newCachedThreadPool());
             server.start();
             System.out.println("New Http Server started on " + server.getAddress());
@@ -71,14 +78,13 @@ public class SocketServer {
                 //Message request received
                 System.out.println("New Request received. Processing...");
                 Document request = builder.parse(t.getRequestBody());
-                System.out.println("Request was: " + request);
+                //System.out.println("Request was: " + getStringFromDocument(request));
 
                 //Parse the request method
                 NodeList methods = request.getElementsByTagName("methodName");
                 Node method = methods.item(0);
-                String methodname = method.getTextContent();;
-                //Parse the request params
-                NodeList params = request.getElementsByTagName("params");
+                String methodname = method.getTextContent();
+
 
                 //Call corresponding method
                 String StrResponse = "";
@@ -86,13 +92,13 @@ public class SocketServer {
                     case "getRecord" -> {
                         NodeList keylist = request.getElementsByTagName("int");
                         Node keynode = keylist.item(0);
-                        int key = Integer.parseInt(keynode.getNodeValue());
+                        int key = Integer.parseInt(keynode.getTextContent());
                         StrResponse = SocketServer.this.getRecord(key);
                     }
                     case "addRecord" -> {
                         NodeList keylist = request.getElementsByTagName("int");
                         Node keynode = keylist.item(0);
-                        int key = Integer.parseInt(keynode.getNodeValue());
+                        int key = Integer.parseInt(keynode.getTextContent());
                         NodeList recordlist = request.getElementsByTagName("string");
                         Node recordnode = recordlist.item(0);
                         String record = recordnode.getTextContent();
@@ -121,7 +127,7 @@ public class SocketServer {
                 Element str = response.createElement("string");
                 Text resp = response.createTextNode(StrResponse);
                 str.appendChild(resp);
-                param.appendChild(str);
+                value.appendChild(str);
 
 
                 //Read the request, set the parameters
@@ -130,14 +136,14 @@ public class SocketServer {
                 t.getResponseHeaders().set("Accept-Ranges", "bytes");
                 OutputStream ostream = t.getResponseBody();
                 //build response and send back
-                t.sendResponseHeaders(200, response.toString().getBytes().length);
+                t.sendResponseHeaders(200, getStringFromDocument(response).getBytes().length);
                 try {
-                    ostream.write(response.toString().getBytes(encoding));
+                    ostream.write(getStringFromDocument(response).getBytes(encoding));
                 } catch (Exception e) {
                     System.out.println("Unable to send response.");
                     System.out.println(e);
                 }
-                System.out.println("Response sent.");
+                //System.out.println("Response sent: " + getStringFromDocument(response));
                 //close connection
                 ostream.flush();
                 ostream.close();
@@ -146,6 +152,26 @@ public class SocketServer {
                 System.out.println("Error Handling Request" + e.getClass());
                 e.printStackTrace();
             }
+        }
+    }
+
+    //method to convert Document to String
+    public String getStringFromDocument(Document doc)
+    {
+        try
+        {
+            DOMSource domSource = new DOMSource(doc);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.transform(domSource, result);
+            return writer.toString();
+        }
+        catch(TransformerException e)
+        {
+            e.printStackTrace();
+            return null;
         }
     }
 
