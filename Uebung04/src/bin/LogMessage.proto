@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+enum Level {
+  DEBUG = 0;
+  INFO  = 1;
+  WARN = 2;
+  ERROR= 3;
+  FATAL = 4;
+}
+
+message log {
+    google.protobuf.Timestamp timestamp = 1;
+    string indicator = 2;
+    Level severity_lvl = 3;
+    string msg = 4;
+}
+
