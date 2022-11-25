@@ -6,9 +6,9 @@ import java.util.logging.*;
 
 public class Main {
     public static void main(String[] args) {
-        SocketServer server = new SocketServer();
-        SocketClient client = new SocketClient("http://localhost/");
+        new Thread(new SocketServer()).start();
+        SocketClient client = new SocketClient();
+        client.create_log("localhost", 80,"Testtestest");
 
-        client.log_msg(1, "Test message", "myself");
     }
 }
