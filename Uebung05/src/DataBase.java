@@ -9,4 +9,6 @@ public interface DataBase extends Remote {
 	public int getSize() throws RemoteException;
 
 	public int getIndex(String record) throws RemoteException;
+
+	public DBResult getRecordObj(int index) throws RemoteException;
 }

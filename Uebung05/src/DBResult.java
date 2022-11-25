@@ -5,6 +5,7 @@ public class DBResult implements Serializable {
     private int index;
     private int size;
 
+
     public String getRecord() {
         return this.record;
     }

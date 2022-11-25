@@ -11,6 +11,17 @@ public class Client {
         this.db = readStubFromFile(filename);
     }
 
+    public DBResult getRecordObj(int index) {
+        dbr.setIndex(index);
+        DBResult obj = new DBResult();
+        try {
+            obj = this.db.getRecordObj(dbr.getIndex());
+        }  catch (RemoteException e) {
+        System.out.println("Remote Exception");
+        e.printStackTrace();
+        }
+        return obj;
+    }
     public int getIndex(String record) {
         dbr.setIndex(0);
         dbr.setRecord(record);

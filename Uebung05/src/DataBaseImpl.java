@@ -30,6 +30,17 @@ public class DataBaseImpl implements DataBase{
     }
 
     @Override
+    public DBResult getRecordObj(int index) {
+        dbr.setIndex(index);
+        dbr.setRecord("");
+        if (this.db.containsKey(dbr.getIndex())) {
+            dbr.setRecord(this.db.get(dbr.getIndex()));
+        }
+        return dbr;
+
+    }
+
+    @Override
     public String getRecord(int index) throws RemoteException {
         //reads a database record from the database given a key
         dbr.setIndex(index);

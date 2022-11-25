@@ -18,6 +18,7 @@ public class Main {
             int size = client.getSize();
             int indexAppen = client.getIndex("Appen");
             int indexasd = client.getIndex("asd");
+            DBResult obj = client.getRecordObj(4101);
 
 
             System.out.println("Key 4103 has record: " + record4103);
@@ -25,6 +26,8 @@ public class Main {
             System.out.println("Final size is " + size);
             System.out.println("Appen has Index " + indexAppen);
             System.out.println("asd has Index " + indexasd);
+            System.out.println("Object holds record " + obj.getRecord());
+            System.out.println("Object holds index " + obj.getIndex());
 
 
 
