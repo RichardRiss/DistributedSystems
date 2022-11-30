@@ -3,7 +3,7 @@ import java.io.*;
 public class Main {
     public static void main(String[] args) {
         try {
-            DataBaseImpl db = new DataBaseImpl("./Uebung04/src/database");
+            DataBaseImpl db = new DataBaseImpl("./Uebung05/src/database");
             Client client = new Client(db.path);
 
             client.addRecord(4101, "Appen");
