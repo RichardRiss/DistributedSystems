@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 27. Nov 2022 20:20
 %%%-------------------------------------------------------------------
--module(ex6).
+-module(ex7).
 -author("RR").
 
 
@@ -53,7 +53,7 @@ maxitem([],    MAX)              ->
 %% Differentiation
 %%%%%%%%%%%%%%%%%%%
 % solve like
-% ex6:diff(fun(X) -> 2 * (X*X*X) - 12 * X + 3 end, 3, 1.0e-10).
+% ex7:diff(fun(X) -> 2 * (X*X*X) - 12 * X + 3 end, 3, 1.0e-10).
 
 diff(F, X, H) ->
   (F( X + H ) - F( X - H )) / (2 * H).
@@ -80,7 +80,7 @@ counter(Value) ->
         end.
 
 start_counter() ->
-        PID = spawn(ex6, counter, []),
+        PID = spawn(ex7, counter, []),
         io:format("Counter started with PID ~p~n", [PID]),
         PID ! up,
         PID ! up,
