@@ -56,8 +56,7 @@ clock(Value, Paused, TickerPID) ->
       clock(Value, false, TickerPID);
     stop ->
       io:format("Terminate Clock process. ~n"),
-      exit(TickerPID, ok),
-      exit(self(), ok)
+      exit(self(), stop_called)
   end.
 
 get(PID) ->
@@ -68,7 +67,11 @@ get(PID) ->
   end.
 
 ticker(PID, Time) ->
+  link(PID),
+  process_flag(trap_exit, true),
   receive
+    {'EXIT', ExtPID, Reason} ->
+      io:format("Exit invoked for reason ~p by Process-ID ~p ~n", [Reason, ExtPID])
   after
     Time ->
       PID ! {tick, self()},
@@ -105,4 +108,3 @@ timer(Time, Func, Parameter) ->
 
 start_timer() ->
   spawn(?MODULE, timer, [3000, start_clock, 1000]).
-
