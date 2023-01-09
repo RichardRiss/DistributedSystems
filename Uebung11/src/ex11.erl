@@ -21,7 +21,7 @@
 %% Setup
 %%%%%%%%%%%%%%%%%%%%%%%%
 setup(NumProcesses)->
-  io:format("Spawning ~p bully processes. ~n .", [NumProcesses]),
+  io:format("Spawning ~p bully processes. ~n", [NumProcesses]),
   setup(NumProcesses,[]).
 
 setup(0, PidProcesses) ->
@@ -39,7 +39,7 @@ setup(NumProcesses, PidProcesses)->
 %% Bully
 %%%%%%%%%%%%%%%%%%%%%%%%
 bully() ->
-  io:format("Bully started with election value ~p ~n .", [self()]),
+  io:format("Bully started with election value ~p. ~n", [self()]),
   receive
     {PidSender, {group, PidProcesses}} ->
       PidSender ! ok,
@@ -69,11 +69,12 @@ bully(PidCoordinator, Processes) ->
             true ->
               lists:foreach(fun(Pid) ->
                 Pid ! {coordinator, self()}
-              end, SelflessList)
+              end, SelflessList),
+              bully(self(), Processes)
           end
       end;
     {coordinator, PidNewCoordinator} ->
-      io:format("New Coordinator ~p elected for process ~p ~n .", [PidNewCoordinator, self()]),
+      io:format("New Coordinator ~p elected for process ~p. ~n", [PidNewCoordinator, self()]),
       bully(PidNewCoordinator, Processes)
   end.
 
@@ -95,4 +96,5 @@ rpc(Pid, Request) ->
 start_election(Processes)->
   PidProcess = lists:nth(rand:uniform(length(Processes)),Processes),
   io:format("Process ~p starts election. ~n",[PidProcess]),
-  PidProcess ! {self(), election}.
+  PidProcess ! {self(), election},
+  ok.
